@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
+const { emitProductAdded, emitProductDeleted } = require('../utils/socket.utils');
 
 class ProductManager {
     constructor() {
@@ -69,6 +70,10 @@ class ProductManager {
 
         this.products.push(newProduct);
         await this.saveProducts();
+        
+        // Emitir evento de nuevo producto
+        emitProductAdded(newProduct);
+        
         return newProduct;
     }
 
@@ -104,6 +109,9 @@ class ProductManager {
 
         this.products.splice(index, 1);
         await this.saveProducts();
+        
+        // Emitir evento de producto eliminado
+        emitProductDeleted(id);
     }
 }
 

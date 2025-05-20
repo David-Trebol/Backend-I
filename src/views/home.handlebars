@@ -1,0 +1,40 @@
+{{#extend "main"}}
+    {{#content "body"}}
+    <h2>Lista de Productos</h2>
+    <div class="product-list">
+        {{#if products.length}}
+            {{#each products}}
+            <div class="product-card">
+                <h3>{{this.title}}</h3>
+                <p>{{this.description}}</p>
+                <p><strong>Precio:</strong> ${{this.price}}</p>
+                <p><strong>Stock:</strong> {{this.stock}}</p>
+                <p><strong>Categoría:</strong> {{this.category}}</p>
+            </div>
+            {{/each}}
+        {{else}}
+            <p>No hay productos cargados.</p>
+        {{/if}}
+    </div>
+    {{/content}}
+    {{#content "styles"}}
+    <style>
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 16px;
+            background: #fff;
+            width: 220px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+        }
+        .product-card h3 {
+            margin-top: 0;
+        }
+    </style>
+    {{/content}}
+{{/extend}} 

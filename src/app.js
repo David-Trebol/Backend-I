@@ -1,21 +1,11 @@
-const express = require('express');
-const app = express();
+const initializeServer = require('./config/server.config');
+const config = require('./config/env.config');
 
-// Middleware para parsear JSON
-app.use(express.json());
-
-// Importar rutas
-const productsRouter = require('./routes/products.router');
-const cartsRouter = require('./routes/carts.router');
-
-// Rutas principales
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
-
-// Puerto
-const PORT = 8080;
+// Inicializar servidor
+const { httpServer } = initializeServer();
 
 // Iniciar servidor
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+httpServer.listen(config.port, () => {
+    console.log(`Servidor corriendo en el puerto ${config.port}`);
+    console.log(`Ambiente: ${config.nodeEnv}`);
 }); 

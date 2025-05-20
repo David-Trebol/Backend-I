@@ -1,14 +1,17 @@
 {
-  "name": "backend-express",
+  "name": "backend-i",
   "version": "1.0.0",
-  "description": "Servidor Express con rutas de productos y carritos",
+  "description": "Backend con WebSocket y Handlebars",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "express-handlebars": "^7.1.2",
+    "socket.io": "^4.7.2",
+    "handlebars": "^4.7.8"
   },
   "devDependencies": {
     "nodemon": "^3.0.2"
