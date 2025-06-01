@@ -1,5 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
+const Cart = require('../models/Cart');
 
 class CartManager {
     constructor() {
@@ -35,14 +36,11 @@ class CartManager {
         return newCart;
     }
 
-    async getCartById(cid) {
-        await this.loadCarts();
-        const cart = this.carts.find(c => c.id === cid);
-        
+    async getCartById(id) {
+        const cart = await Cart.findById(id);
         if (!cart) {
             throw new Error('Carrito no encontrado');
         }
-        
         return cart;
     }
 
@@ -70,6 +68,39 @@ class CartManager {
 
         await this.saveCarts();
         return cart;
+    }
+
+    async getCarts() {
+        return await Cart.find();
+    }
+
+    async addCart(cartData) {
+        // Validar campos obligatorios
+        const requiredFields = ['userId', 'products'];
+        for (const field of requiredFields) {
+            if (!cartData[field]) {
+                throw new Error(`El campo ${field} es obligatorio`);
+            }
+        }
+
+        const newCart = new Cart(cartData);
+        await newCart.save();
+        return newCart;
+    }
+
+    async updateCart(id, updateData) {
+        const updatedCart = await Cart.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedCart) {
+            throw new Error('Carrito no encontrado');
+        }
+        return updatedCart;
+    }
+
+    async deleteCart(id) {
+        const deletedCart = await Cart.findByIdAndDelete(id);
+        if (!deletedCart) {
+            throw new Error('Carrito no encontrado');
+        }
     }
 }
 

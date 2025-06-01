@@ -1,45 +1,49 @@
-const fs = require('fs').promises;
-const path = require('path');
+const mongoose = require('mongoose');
+const Product = require('../models/Product');
 const { emitProductAdded, emitProductDeleted } = require('../utils/socket.utils');
 
 class ProductManager {
     constructor() {
-        this.path = path.join(__dirname, '../data/products.json');
-        this.products = [];
-        this.loadProducts();
+        // Eliminar la inicialización de this.path y this.products
+        // this.path = path.join(__dirname, '../data/products.json');
+        // this.products = [];
+        // this.loadProducts();
     }
 
-    async loadProducts() {
-        try {
-            const data = await fs.readFile(this.path, 'utf-8');
-            this.products = JSON.parse(data);
-        } catch (error) {
-            this.products = [];
-            await this.saveProducts();
-        }
+    // Eliminar el método loadProducts que leía el archivo
+    // async loadProducts() {
+    //     try {
+    //         const data = await fs.readFile(this.path, 'utf-8');
+    //         this.products = JSON.parse(data);
+    //     } catch (error) {
+    //         this.products = [];
+    //         await this.saveProducts();
+    //     }
+    // }
+
+    // Eliminar el método saveProducts que escribía en el archivo
+    // async saveProducts() {
+    //     await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
+    // }
+
+    // Actualizar getProducts para obtener productos desde MongoDB
+    async getProducts(filter = {}, options = {}) {
+        const { limit = 10, page = 1, sort = {} } = options;
+        const skip = (page - 1) * limit;
+        return await Product.find(filter).sort(sort).skip(skip).limit(limit);
     }
 
-    async saveProducts() {
-        await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
-    }
-
-    async getProducts() {
-        await this.loadProducts();
-        return this.products;
-    }
-
+    // Actualizar getProductById para buscar un producto por su ID en MongoDB
     async getProductById(id) {
-        await this.loadProducts();
-        const product = this.products.find(p => p.id === id);
+        const product = await Product.findById(id);
         if (!product) {
             throw new Error('Producto no encontrado');
         }
         return product;
     }
 
+    // Actualizar addProduct para crear un nuevo producto en MongoDB
     async addProduct(productData) {
-        await this.loadProducts();
-        
         // Validar campos obligatorios
         const requiredFields = ['title', 'description', 'code', 'price', 'stock', 'category'];
         for (const field of requiredFields) {
@@ -48,16 +52,13 @@ class ProductManager {
             }
         }
 
-        // Generar ID único
-        const id = Date.now().toString();
-        
         // Verificar si el código ya existe
-        if (this.products.some(p => p.code === productData.code)) {
+        const existingProduct = await Product.findOne({ code: productData.code });
+        if (existingProduct) {
             throw new Error('El código del producto ya existe');
         }
 
-        const newProduct = {
-            id,
+        const newProduct = new Product({
             title: productData.title,
             description: productData.description,
             code: productData.code,
@@ -66,50 +67,34 @@ class ProductManager {
             stock: Number(productData.stock),
             category: productData.category,
             thumbnails: productData.thumbnails || []
-        };
+        });
 
-        this.products.push(newProduct);
-        await this.saveProducts();
-        
+        await newProduct.save();
         // Emitir evento de nuevo producto
         emitProductAdded(newProduct);
-        
         return newProduct;
     }
 
+    // Actualizar updateProduct para actualizar un producto en MongoDB
     async updateProduct(id, updateData) {
-        await this.loadProducts();
-        const index = this.products.findIndex(p => p.id === id);
-        
-        if (index === -1) {
-            throw new Error('Producto no encontrado');
-        }
-
         // No permitir actualizar el ID
         if (updateData.id) {
             delete updateData.id;
         }
 
-        this.products[index] = {
-            ...this.products[index],
-            ...updateData
-        };
-
-        await this.saveProducts();
-        return this.products[index];
-    }
-
-    async deleteProduct(id) {
-        await this.loadProducts();
-        const index = this.products.findIndex(p => p.id === id);
-        
-        if (index === -1) {
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedProduct) {
             throw new Error('Producto no encontrado');
         }
+        return updatedProduct;
+    }
 
-        this.products.splice(index, 1);
-        await this.saveProducts();
-        
+    // Actualizar deleteProduct para eliminar un producto en MongoDB
+    async deleteProduct(id) {
+        const deletedProduct = await Product.findByIdAndDelete(id);
+        if (!deletedProduct) {
+            throw new Error('Producto no encontrado');
+        }
         // Emitir evento de producto eliminado
         emitProductDeleted(id);
     }

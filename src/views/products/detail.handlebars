@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{product.title}} - Detalles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/products">Productos</a></li>
+                <li class="breadcrumb-item active">{{product.title}}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-md-6">
+                {{#if product.thumbnails.length}}
+                <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {{#each product.thumbnails}}
+                        <div class="carousel-item {{#if @first}}active{{/if}}">
+                            <img src="{{this}}" class="d-block w-100" alt="Producto">
+                        </div>
+                        {{/each}}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+                {{else}}
+                <img src="/images/no-image.png" class="img-fluid" alt="Sin imagen">
+                {{/if}}
+            </div>
+            <div class="col-md-6">
+                <h1>{{product.title}}</h1>
+                <p class="lead">{{product.description}}</p>
+                <div class="mb-3">
+                    <h3 class="text-primary">${{product.price}}</h3>
+                </div>
+                <div class="mb-3">
+                    <p><strong>Categoría:</strong> {{product.category}}</p>
+                    <p><strong>Stock:</strong> {{product.stock}} unidades</p>
+                    <p><strong>Estado:</strong> {{#if product.status}}Disponible{{else}}No disponible{{/if}}</p>
+                </div>
+                <div class="d-grid gap-2">
+                    <button onclick="addToCart('{{product._id}}')" class="btn btn-primary btn-lg" {{#unless product.status}}disabled{{/unless}}>
+                        Agregar al Carrito
+                    </button>
+                    <a href="/products" class="btn btn-outline-secondary">Volver a Productos</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function addToCart(productId) {
+            try {
+                const response = await fetch('/api/carts/current/products/' + productId, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    alert('Producto agregado al carrito');
+                } else {
+                    alert('Error al agregar el producto al carrito');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al agregar el producto al carrito');
+            }
+        }
+    </script>
+</body>
+</html> 
