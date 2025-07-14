@@ -4,6 +4,9 @@ const exphbs = require('express-handlebars');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+const session = require('express-session');
+const passport = require('./config/passport.config');
+const sessionsRouter = require('./routes/sessions');
 
 // Configuración de Handlebars
 app.engine('handlebars', exphbs.engine({
@@ -18,6 +21,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+    secret: 'secretoSuperSeguro',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Conexión a MongoDB
 mongoose.connect('mongodb://localhost:27017/miBaseDeDatos', {
@@ -33,10 +43,15 @@ mongoose.connect('mongodb://localhost:27017/miBaseDeDatos', {
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const viewRoutes = require('./routes/views');
+const userRoutes = require('./routes/userRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Usar rutas
 app.use('/api/products', productRoutes);
 app.use('/api/carts', cartRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/sessions', sessionsRouter);
 app.use('/', viewRoutes);
 
 // Ruta principal
