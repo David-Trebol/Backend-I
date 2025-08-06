@@ -1,102 +1,66 @@
-const mongoose = require('mongoose');
-const Product = require('../models/Product');
-const { emitProductAdded, emitProductDeleted } = require('../utils/socket.utils');
+const ProductRepository = require('../repositories/ProductRepository');
 
 class ProductManager {
     constructor() {
-        // Eliminar la inicialización de this.path y this.products
-        // this.path = path.join(__dirname, '../data/products.json');
-        // this.products = [];
-        // this.loadProducts();
+        this.productRepository = new ProductRepository();
     }
 
-    // Eliminar el método loadProducts que leía el archivo
-    // async loadProducts() {
-    //     try {
-    //         const data = await fs.readFile(this.path, 'utf-8');
-    //         this.products = JSON.parse(data);
-    //     } catch (error) {
-    //         this.products = [];
-    //         await this.saveProducts();
-    //     }
-    // }
-
-    // Eliminar el método saveProducts que escribía en el archivo
-    // async saveProducts() {
-    //     await fs.writeFile(this.path, JSON.stringify(this.products, null, 2));
-    // }
-
-    // Actualizar getProducts para obtener productos desde MongoDB
     async getProducts(filter = {}, options = {}) {
-        const { limit = 10, page = 1, sort = {} } = options;
-        const skip = (page - 1) * limit;
-        return await Product.find(filter).sort(sort).skip(skip).limit(limit);
+        return await this.productRepository.findAll(filter, options);
     }
 
-    // Actualizar getProductById para buscar un producto por su ID en MongoDB
     async getProductById(id) {
-        const product = await Product.findById(id);
+        const product = await this.productRepository.findById(id);
         if (!product) {
             throw new Error('Producto no encontrado');
         }
         return product;
     }
 
-    // Actualizar addProduct para crear un nuevo producto en MongoDB
     async addProduct(productData) {
-        // Validar campos obligatorios
-        const requiredFields = ['title', 'description', 'code', 'price', 'stock', 'category'];
-        for (const field of requiredFields) {
-            if (!productData[field]) {
-                throw new Error(`El campo ${field} es obligatorio`);
-            }
-        }
-
-        // Verificar si el código ya existe
-        const existingProduct = await Product.findOne({ code: productData.code });
-        if (existingProduct) {
-            throw new Error('El código del producto ya existe');
-        }
-
-        const newProduct = new Product({
-            title: productData.title,
-            description: productData.description,
-            code: productData.code,
-            price: Number(productData.price),
-            status: productData.status !== undefined ? productData.status : true,
-            stock: Number(productData.stock),
-            category: productData.category,
-            thumbnails: productData.thumbnails || []
-        });
-
-        await newProduct.save();
-        // Emitir evento de nuevo producto
-        emitProductAdded(newProduct);
-        return newProduct;
+        return await this.productRepository.createWithValidation(productData);
     }
 
-    // Actualizar updateProduct para actualizar un producto en MongoDB
     async updateProduct(id, updateData) {
         // No permitir actualizar el ID
         if (updateData.id) {
             delete updateData.id;
         }
 
-        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        const updatedProduct = await this.productRepository.update(id, updateData);
         if (!updatedProduct) {
             throw new Error('Producto no encontrado');
         }
         return updatedProduct;
     }
 
-    // Actualizar deleteProduct para eliminar un producto en MongoDB
     async deleteProduct(id) {
-        const deletedProduct = await Product.findByIdAndDelete(id);
-        if (!deletedProduct) {
-            throw new Error('Producto no encontrado');
-        }
-        // Emitir evento de producto eliminado
-        emitProductDeleted(id);
+        return await this.productRepository.deleteWithEvent(id);
+    }
+
+    // Métodos adicionales que aprovechan el repositorio
+    async getProductsByCategory(category, options = {}) {
+        return await this.productRepository.findByCategory(category, options);
+    }
+
+    async getProductsByPriceRange(minPrice, maxPrice, options = {}) {
+        return await this.productRepository.findByPriceRange(minPrice, maxPrice, options);
+    }
+
+    async getProductsInStock(options = {}) {
+        return await this.productRepository.findInStock(options);
+    }
+
+    async updateProductStock(id, quantity) {
+        return await this.productRepository.updateStock(id, quantity);
+    }
+
+    async getProductByCode(code) {
+        return await this.productRepository.findByCode(code);
+    }
+
+    async getProductsCount(filter = {}) {
+        return await this.productRepository.count(filter);
     }
 }
 
