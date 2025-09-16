@@ -26,11 +26,13 @@ const initializeServer = () => {
     const productsRouter = require('../routes/products.router');
     const cartsRouter = require('../routes/carts.router');
     const viewsRouter = require('../routes/views.router');
+    const mocksRouter = require('../routes/mocks.router');
 
     // Rutas principales
     app.use('/api/products', productsRouter);
     app.use('/api/carts', cartsRouter);
     app.use('/', viewsRouter);
+    app.use('/api/mocks', mocksRouter);
 
     return { app, httpServer };
 };

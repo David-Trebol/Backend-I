@@ -121,6 +121,8 @@ const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const passwordResetRoutes = require('./routes/passwordResetRoutes');
 const statsRoutes = require('./routes/statsRoutes');
+const petsRoutes = require('./routes/petsRoutes');
+const mocksRouter = require('./routes/mocks.router');
 
 // Middleware de validación
 const { validateRequest, schemas } = require('./utils/validator');
@@ -132,6 +134,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/password-reset', passwordResetRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/pets', petsRoutes);
+app.use('/api/mocks', mocksRouter);
 app.use('/', viewRoutes);
 
 // Ruta de salud
