@@ -8,6 +8,37 @@ const { authenticateAndGetUser } = require('../middleware/auth.middleware');
 
 const userManager = new UserManager();
 
+/**
+ * @swagger
+ * /api/auth/register:
+ *   post:
+ *     summary: Registro de nuevo usuario
+ *     description: Permite registrar un nuevo usuario en el sistema
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterRequest'
+ *     responses:
+ *       201:
+ *         description: Usuario registrado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuario registrado exitosamente"
+ *                 user:
+ *                   $ref: '#/components/schemas/UserDTO'
+ *       400:
+ *         $ref: '#/components/responses/ValidationError'
+ *       500:
+ *         description: Error interno del servidor
+ */
 // POST /register - Registro de usuario
 router.post('/register', async (req, res) => {
     try {
@@ -25,6 +56,37 @@ router.post('/register', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Inicio de sesión
+ *     description: Autentica un usuario y retorna un token JWT
+ *     tags: [Authentication]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
+ *     responses:
+ *       200:
+ *         description: Login exitoso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LoginResponse'
+ *       401:
+ *         description: Credenciales inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               error: "Credenciales inválidas"
+ *       500:
+ *         description: Error interno del servidor
+ */
 // POST /login - Login de usuario
 router.post('/login', async (req, res) => {
     try {

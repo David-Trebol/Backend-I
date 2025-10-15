@@ -4,6 +4,69 @@ const UserManager = require('../managers/UserManager');
 
 const userManager = new UserManager();
 
+/**
+ * @swagger
+ * /api/users:
+ *   get:
+ *     summary: Obtener todos los usuarios
+ *     description: Retorna una lista de usuarios con filtros opcionales y paginación
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Número máximo de usuarios por página
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Número de página
+ *       - in: query
+ *         name: sort
+ *         schema:
+ *           type: string
+ *           enum: [firstName, lastName, email, age, createdAt]
+ *         description: Campo por el cual ordenar los resultados
+ *       - in: query
+ *         name: role
+ *         schema:
+ *           type: string
+ *           enum: [customer, admin]
+ *         description: Filtrar por rol del usuario
+ *       - in: query
+ *         name: minAge
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Edad mínima para filtrar usuarios
+ *       - in: query
+ *         name: maxAge
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: Edad máxima para filtrar usuarios
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios obtenida exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ *       500:
+ *         description: Error interno del servidor
+ */
 // GET / - Obtener todos los usuarios
 router.get('/', async (req, res) => {
     try {

@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # Base de datos MongoDB para desarrollo
+  mongodb:
+    image: mongo:7.0
+    container_name: backend-mongodb-dev
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: backend_dev
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - backend-dev-network
+
+  # Redis para desarrollo
+  redis:
+    image: redis:7-alpine
+    container_name: backend-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - backend-dev-network
+
+  # Aplicación en modo desarrollo (con hot reload)
+  app:
+    build:
+      context: .
+      target: development
+    container_name: backend-app-dev
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      MONGODB_URI: mongodb://admin:password123@mongodb:27017/backend_dev?authSource=admin
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-key
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASS: your-email-password
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - backend-dev-network
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  backend-dev-network:
+    driver: bridge

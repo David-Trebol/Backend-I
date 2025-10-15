@@ -27,10 +27,16 @@ const initializeServer = () => {
     const cartsRouter = require('../routes/carts.router');
     const viewsRouter = require('../routes/views.router');
     const mocksRouter = require('../routes/mocks.router');
+    const userRoutes = require('../routes/userRoutes');
+    const authRoutes = require('../routes/authRoutes');
+    const adoptionRoutes = require('../routes/adoptionRoutes');
 
     // Rutas principales
     app.use('/api/products', productsRouter);
     app.use('/api/carts', cartsRouter);
+    app.use('/api/users', userRoutes);
+    app.use('/api/auth', authRoutes);
+    app.use('/api/adoptions', adoptionRoutes);
     app.use('/', viewsRouter);
     app.use('/api/mocks', mocksRouter);
 

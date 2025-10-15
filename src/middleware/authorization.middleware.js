@@ -252,6 +252,10 @@ const checkPermission = (permission) => {
             'cart.admin': ['admin'],
             'users.read': ['user', 'admin'],
             'users.update': ['user', 'admin'],
+            'adoptions.create': ['user', 'admin'],
+            'adoptions.read': ['user', 'admin'],
+            'adoptions.update': ['admin'],
+            'adoptions.delete': ['admin'],
             'users.delete': ['admin']
         };
 

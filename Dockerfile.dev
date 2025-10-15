@@ -1,0 +1,42 @@
+# Dockerfile para desarrollo con hot reload
+FROM node:18-alpine
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    curl
+
+# Copiar archivos de dependencias
+COPY package*.json ./
+
+# Instalar todas las dependencias (incluyendo devDependencies)
+RUN npm install
+
+# Crear usuario no-root
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Copiar código fuente
+COPY --chown=nodejs:nodejs . .
+
+# Crear directorios necesarios
+RUN mkdir -p logs src/data && \
+    chown -R nodejs:nodejs /app
+
+# Cambiar al usuario no-root
+USER nodejs
+
+# Exponer puerto
+EXPOSE 3000
+
+# Variables de entorno para desarrollo
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# Comando por defecto para desarrollo
+CMD ["npm", "run", "dev"]
